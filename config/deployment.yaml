@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-k3-app
+  labels:
+    app: go-k3-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-k3-app
+  template:
+    metadata:
+      labels:
+        app: go-k3-app
+    spec:
+      containers:
+        - name: go-k3-app
+          image: go-k3-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+      nodeSelector:
+        kubernetes.io/arch: arm64
