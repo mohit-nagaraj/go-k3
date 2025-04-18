@@ -38,6 +38,13 @@ if [ "$CODESPACES" = "true" ] || grep -qa "CODESPACES" /proc/1/environ 2>/dev/nu
 
     echo "📥 Installing K3s with k3d..."
     curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+
+    if k3d cluster list | grep -q "codespaces-cluster"; then
+        echo "🧹 Deleting existing 'codespaces-cluster'..."
+        k3d cluster delete codespaces-cluster
+    fi
+
+    echo "🚀 Creating new 'codespaces-cluster'..."
     k3d cluster create codespaces-cluster
     
     install_kubectl
