@@ -1,0 +1,16 @@
+{
+    "name": "go-dev",
+    "build": {
+      "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+      "vscode": {
+        "extensions": ["golang.Go"]
+      }
+    },
+    "features": {
+        "ghcr.io/rio/features/k3d:1": {}
+    },
+     "postCreateCommand": "curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash"
+  }
+  
