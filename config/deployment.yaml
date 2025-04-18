@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: go-k3-app
-  namespace: my-namespace
+  namespace: go-k3-app-ns
   labels:
     app: go-k3-app
     version: v1.0.0
@@ -51,9 +51,3 @@ spec:
               port: 8080
             initialDelaySeconds: 3
             periodSeconds: 5
-      nodeSelector:
-        kubernetes.io/arch: arm64
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 3000
-        fsGroup: 2000

@@ -33,9 +33,7 @@ install_kubectl() {
     fi
 }
 
-if [ "$CODESPACES" = "true" ] || grep -qa "CODESPACES" /proc/1/environ 2>/dev/null; then
-    echo "💻 Detected GitHub Codespaces environment."
-
+create_k3d_cluster() {
     echo "📥 Installing K3s with k3d..."
     curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 
@@ -45,8 +43,25 @@ if [ "$CODESPACES" = "true" ] || grep -qa "CODESPACES" /proc/1/environ 2>/dev/nu
     fi
 
     echo "🚀 Creating new 'codespaces-cluster'..."
-    k3d cluster create codespaces-cluster
-    
+    k3d cluster create codespaces-cluster --servers 1 --agents 1
+}
+
+create_local_k3d_cluster() {
+    echo "📥 Installing K3s with k3d..."
+
+    # Install k3d if not already installed
+    if ! command -v k3d &> /dev/null; then
+        curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+    fi
+
+    echo "🚀 Creating new local k3d cluster..."
+    k3d cluster create local-cluster --servers 1 --agents 1
+}
+
+if [ "$CODESPACES" = "true" ] || grep -qa "CODESPACES" /proc/1/environ 2>/dev/null; then
+    echo "💻 Detected GitHub Codespaces environment."
+
+    create_k3d_cluster
     install_kubectl
     install_go
 else
@@ -91,6 +106,9 @@ else
     else
         echo "✅ K3s is already installed."
     fi
+
+    # Create K3d cluster with agents (non-Codespaces)
+    create_local_k3d_cluster
 
     install_kubectl
     install_go
