@@ -4,9 +4,8 @@ set -e
 echo "📦 Starting K3s + Docker + Go install..."
 
 install_go() {
-    # Universal Go installation using official tarball
     local GO_VERSION="1.22.2"
-    
+
     echo "🔧 Installing Go ${GO_VERSION}..."
     if ! command -v go &> /dev/null; then
         wget -q https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz
@@ -21,7 +20,6 @@ install_go() {
 }
 
 install_kubectl() {
-    # Universal kubectl installation
     if ! command -v kubectl &> /dev/null; then
         echo "📥 Installing kubectl..."
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -43,19 +41,18 @@ create_k3d_cluster() {
     fi
 
     echo "🚀 Creating new 'codespaces-cluster'..."
-    k3d cluster create codespaces-cluster --servers 1 --agents 1
+    k3d cluster create codespaces-cluster --servers 1 --agents 1 --port "80:80@loadbalancer"
 }
 
 create_local_k3d_cluster() {
     echo "📥 Installing K3s with k3d..."
 
-    # Install k3d if not already installed
     if ! command -v k3d &> /dev/null; then
         curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
     fi
 
     echo "🚀 Creating new local k3d cluster..."
-    k3d cluster create local-cluster --servers 1 --agents 1
+    k3d cluster create local-cluster --servers 1 --agents 1 --port "80:80@loadbalancer"
 }
 
 if [ "$CODESPACES" = "true" ] || grep -qa "CODESPACES" /proc/1/environ 2>/dev/null; then
@@ -66,8 +63,7 @@ if [ "$CODESPACES" = "true" ] || grep -qa "CODESPACES" /proc/1/environ 2>/dev/nu
     install_go
 else
     echo "🖥️  Detected Local Linux environment: $(uname -a)"
-    
-    # Package manager detection
+
     if command -v apt-get &> /dev/null; then
         PKG_MGR="apt"
     elif command -v dnf &> /dev/null; then
@@ -79,7 +75,6 @@ else
         exit 1
     fi
 
-    # Install Docker
     if ! command -v docker &> /dev/null; then
         echo "🐳 Installing Docker..."
         case $PKG_MGR in
@@ -97,17 +92,14 @@ else
         echo "✅ Docker is already installed: $(docker --version)"
     fi
 
-    # Install K3s
     if ! command -v k3s &> /dev/null; then
         echo "☁️  Installing K3s (no traefik/servicelb)..."
         curl -sfL https://get.k3s.io | sh -s - --disable traefik --disable servicelb --write-kubeconfig-mode 644
-        # Add kubectl symlink
         sudo ln -sf /usr/local/bin/k3s /usr/local/bin/kubectl
     else
         echo "✅ K3s is already installed."
     fi
 
-    # Create K3d cluster with agents (non-Codespaces)
     create_local_k3d_cluster
 
     install_kubectl

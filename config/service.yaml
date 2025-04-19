@@ -6,11 +6,9 @@ metadata:
   annotations:
     description: "Service to expose go-k3-app using a LoadBalancer"
 spec:
+  type: LoadBalancer
   selector:
     app: go-k3-app
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 8080
-  type: LoadBalancer
-  sessionAffinity: None

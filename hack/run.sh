@@ -25,3 +25,5 @@ kubectl wait --for=condition=ready pod -l app=go-k3-app -n "$NAMESPACE" --timeou
 # Get the pod status
 echo "Getting pod status..."
 kubectl get pods -n "$NAMESPACE"
+
+kubectl port-forward svc/go-k3-app-service 8080:80 -n go-k3-app-ns
