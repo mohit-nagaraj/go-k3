@@ -2,6 +2,8 @@
 
 A lightweight Go web server application ready to deploy on K3d/K3s Kubernetes clusters. This project demonstrates a simple but complete workflow for local Kubernetes development with Go.
 
+![Built grafana dashboard](dashboard.png)
+
 ## Overview
 
 This project provides:
@@ -42,7 +44,7 @@ This project includes a lightweight monitoring stack using Prometheus and Grafan
 
 The Go application exposes the following metrics via its `/metrics` endpoint:
 
-- `http_requests_total` - Counter of HTTP requests by path and status code
+- `myapp_http_requests_total` - Counter of HTTP requests by path and status code
 - `http_request_duration_seconds` - Histogram of HTTP request durations by path
 
 ### Setting up Monitoring
@@ -63,20 +65,20 @@ make monitoring-stop
 
 Once Grafana is running:
 
-1. Navigate to http://localhost:3000
+1. Navigate to http://localhost:3000 & login using admin / admin
 2. Go to "Data Sources" and add Prometheus
-   - URL: http://prometheus-service.monitoring:9090
+   - URL: http://prometheus-service:9090
 3. Import a dashboard
    - Go to "+" > "Import"
-   - Use dashboard ID 10826 for a basic Go metrics dashboard
+   - Copy paste the template.json / upload it for the template dashboard
 
 ### Prometheus Query Examples
 
 Some useful Prometheus queries:
 
-- Request rate: `rate(http_requests_total[1m])`
-- Error rate: `rate(http_requests_total{status=~"5.."}[1m])`
-- 90th percentile response time: `histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))`
+- Request rate: `rate(myapp_http_requests_total[1m])`
+- Error rate: `rate(myapp_http_requests_total{status=~"5.."}[1m])`
+- 90th percentile response time: `histogram_quantile(0.9, rate(myapp_http_request_duration_seconds_bucket[5m]))`
 - also you can test in cli by running `curl -s http://localhost:9090/metrics | head -n20`
 
 ## Project Structure
