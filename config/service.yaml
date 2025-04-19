@@ -3,8 +3,6 @@ kind: Service
 metadata:
   name: go-k3-app-service
   namespace: go-k3-app-ns
-  annotations:
-    description: "Service to expose go-k3-app using a LoadBalancer"
 spec:
   type: LoadBalancer
   selector:

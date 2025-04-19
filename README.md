@@ -34,13 +34,57 @@ make cluster-up
 
 Once deployed, you can access the application at http://localhost:8080
 
+## Monitoring
+
+This project includes a lightweight monitoring stack using Prometheus and Grafana.
+
+### Metrics Available
+
+The Go application exposes the following metrics via its `/metrics` endpoint:
+
+- `http_requests_total` - Counter of HTTP requests by path and status code
+- `http_request_duration_seconds` - Histogram of HTTP request durations by path
+
+### Setting up Monitoring
+
+```bash
+# Deploy Prometheus and Grafana
+make monitoring
+
+# Access monitoring dashboards
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000
+
+# Stop monitoring port-forwarding
+make monitoring-stop
+```
+
+### Dashboard Setup in Grafana
+
+Once Grafana is running:
+
+1. Navigate to http://localhost:3000
+2. Go to "Data Sources" and add Prometheus
+   - URL: http://prometheus-service.monitoring:9090
+3. Import a dashboard
+   - Go to "+" > "Import"
+   - Use dashboard ID 10826 for a basic Go metrics dashboard
+
+### Prometheus Query Examples
+
+Some useful Prometheus queries:
+
+- Request rate: `rate(http_requests_total[1m])`
+- Error rate: `rate(http_requests_total{status=~"5.."}[1m])`
+- 90th percentile response time: `histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))`
+
 ## Project Structure
 
 ```
 .
 ├── app/                    # Go application
+│   ├── internal/           # Handlers & middleware
 │   ├── main.go             # Main application code
-│   ├── go.mod              # Go module definition
 │   └── Dockerfile          # Container definition
 ├── config/                 # Kubernetes manifests
 │   ├── deployment.yaml     # Kubernetes deployment
@@ -66,6 +110,8 @@ The Makefile provides the following commands:
 | `make build` | Builds the Docker image |
 | `make cluster-up` | Deploys application to K3d cluster |
 | `make clean` | Removes application from cluster |
+| `make monitoring` | Deploys Prometheus and Grafana |
+| `make monitoring-stop` | Stops monitoring port-forwarding |
 | `make help` | Shows available commands |
 
 ## Installation Details

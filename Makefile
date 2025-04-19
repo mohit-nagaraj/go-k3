@@ -1,4 +1,4 @@
-.PHONY: all install build cluster-up clean check-docker-image help
+.PHONY: all install build cluster-up clean check-docker-image monitoring monitoring-stop help
 
 # Default target when just running 'make'
 all: check-docker-image
@@ -31,6 +31,18 @@ cluster-up:
 	@chmod +x ./hack/run.sh
 	@./hack/run.sh
 
+# Setup monitoring tools (Prometheus + Grafana)
+monitoring:
+	@echo "Setting up monitoring stack..."
+	@chmod +x ./hack/monitoring.sh
+	@./hack/monitoring.sh
+
+# Find and kill monitoring port forwarding processes
+monitoring-stop:
+	@echo "Stopping monitoring port forwarding..."
+	@pgrep -f "port-forward svc/prometheus-service" | xargs kill -9 2>/dev/null || echo "No Prometheus port-forward running"
+	@pgrep -f "port-forward svc/grafana-service" | xargs kill -9 2>/dev/null || echo "No Grafana port-forward running"
+
 # Clean up resources
 clean:
 	@echo "Cleaning up resources..."
@@ -40,9 +52,11 @@ clean:
 # Show help
 help:
 	@echo "Available targets:"
-	@echo "  make            - Check for Docker image, build if needed, and deploy to cluster"
-	@echo "  make install    - Install dependencies and set up k3d cluster"
-	@echo "  make build      - Build the Docker image"
-	@echo "  make cluster-up - Deploy application to k3d cluster"
-	@echo "  make clean      - Remove application from cluster"
-	@echo "  make help       - Show this help message"
+	@echo "  make                - Check for Docker image, build if needed, and deploy to cluster"
+	@echo "  make install        - Install dependencies and set up k3d cluster"
+	@echo "  make build          - Build the Docker image"
+	@echo "  make cluster-up     - Deploy application to k3d cluster"
+	@echo "  make monitoring     - Set up Prometheus and Grafana monitoring stack"
+	@echo "  make monitoring-stop - Stop monitoring port forwarding processes"
+	@echo "  make clean          - Remove application and monitoring from cluster"
+	@echo "  make help           - Show this help message"
