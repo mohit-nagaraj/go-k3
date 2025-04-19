@@ -8,6 +8,9 @@ CLUSTER="codespaces-cluster"
 echo "Applying namespace..."
 kubectl apply -f ./config/namespace.yaml
 
+echo "Applying Prometheus RBAC rules"              # ← new
+kubectl apply -f ./config/rbac.yaml 
+
 echo "Importing image into k3d cluster..."
 k3d image import "$IMAGE" -c "$CLUSTER"
 
@@ -15,7 +18,7 @@ echo "Applying deployment and service..."
 kubectl apply -f ./config/deployment.yaml -f ./config/service.yaml
 
 echo "Waiting for pods to be ready..."
-kubectl wait --for=condition=ready pod -l app=go-k3-app -n "$NAMESPACE" --timeout=60s
+kubectl wait --for=condition=ready pod -l app=go-k3-app -n "go-k3-app-ns" --timeout=60s
 
 echo "Getting pod status..."
 kubectl get pods -n "$NAMESPACE"

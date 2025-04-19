@@ -77,6 +77,7 @@ Some useful Prometheus queries:
 - Request rate: `rate(http_requests_total[1m])`
 - Error rate: `rate(http_requests_total{status=~"5.."}[1m])`
 - 90th percentile response time: `histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))`
+- also you can test in cli by running `curl -s http://localhost:9090/metrics | head -n20`
 
 ## Project Structure
 
